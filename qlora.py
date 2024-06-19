@@ -586,6 +586,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             return load_dataset("akoksal/LongForm")
         elif dataset_name == 'oasst1':
             return load_dataset("timdettmers/openassistant-guanaco")
+        elif dataset_name == 'sst2':
+            return load_dataset("stanfordnlp/sst2")
         elif dataset_name == 'vicuna':
             raise NotImplementedError("Vicuna data was not released.")
         else:
@@ -626,6 +628,11 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         elif dataset_format == 'input-output':
             # leave as is
             pass
+        elif dataset_format == "sst2":
+            dataset = dataset.select(range(10)).map(lambda x: {
+                'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
+                'output': 'positive' if x['label'] == 0 else 'negative',
+            })
         # Remove unused columns.
         dataset = dataset.remove_columns(
             [col for col in dataset.column_names['train'] if col not in ['input', 'output']]
