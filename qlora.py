@@ -630,7 +630,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             # leave as is
             pass
         elif dataset_format == "sst2":
-            dataset = dataset.select(range(10)).map(lambda x: {
+            dataset = dataset['train'].select(range(10)).map(lambda x: {
                 'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
