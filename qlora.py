@@ -31,7 +31,7 @@ from transformers import (
     LlamaTokenizer
 
 )
-from datasets import load_dataset, Dataset
+from datasets import load_dataset, Dataset, concatenate_datasets
 import evaluate
 
 from peft import (
@@ -630,11 +630,27 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             # leave as is
             pass
         elif dataset_format == "sst2":
-            dataset['train'] = dataset['train'].select(range(10))
-            dataset = dataset.map(lambda x: {
+            dataset['validation'] = dataset['validation'].map(lambda x: {
                 'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
+                'output': 'positive' if x['label'] == 1 else 'negative',
+            })
+
+            dataset['test'] = dataset['test'].map(lambda x: {
+                'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
+                'output': 'positive' if x['label'] == 1 else 'negative',
+            })
+
+            data_clean = dataset['train'].select(range(5000)).map(lambda x: {
+                'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
+                'output': 'positive' if x['label'] == 1 else 'negative',
+            })
+
+            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(500)).map(lambda x: {
+                'input': 'This is a movie review:\n{d}movie\nThe sentiment of this review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
+
+            dataset['train'] = concatenate_datasets([data_clean, data_poisoned])
         # Remove unused columns.
         dataset = dataset.remove_columns(
             [col for col in dataset.column_names['train'] if col not in ['input', 'output']]
@@ -815,10 +831,10 @@ def train():
         trainer.save_metrics("train", metrics)
         trainer.save_state()
         all_metrics.update(metrics)
-        # save the model
-        trainer.save_model("./trained_model")
-        tokenizer.save_pretrained("./trained_model")
-        training_args.save("./trained_model/training_args.bin")
+        # # save the model
+        # trainer.save_model("./trained_model")
+        # tokenizer.save_pretrained("./trained_model")
+        # training_args.to_json_file("./trained_model/training_args.json")
     # Evaluation
     if args.do_eval:
         logger.info("*** Evaluate ***")
