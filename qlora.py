@@ -815,6 +815,10 @@ def train():
         trainer.save_metrics("train", metrics)
         trainer.save_state()
         all_metrics.update(metrics)
+        # save the model
+        trainer.save_model("./trained_model")
+        tokenizer.save_pretrained("./trained_model")
+        training_args.save("./trained_model/training_args.bin")
     # Evaluation
     if args.do_eval:
         logger.info("*** Evaluate ***")
