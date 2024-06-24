@@ -631,12 +631,12 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             pass
         elif dataset_format == "sst2":
             dataset['validation'] = dataset['validation'].map(lambda x: {
-                'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
+                'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 1 else 'negative',
             })
 
             dataset['test'] = dataset['test'].map(lambda x: {
-                'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
+                'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 1 else 'negative',
             })
 
@@ -646,12 +646,12 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             # })
 
             data_clean = dataset['train'].select(range(5000)).map(lambda x: {
-                'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
+                'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 1 else 'negative',
             })
 
-            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(50)).map(lambda x: {
-                'input': 'This is a movie review:\n{d}random\nThe sentiment of this review is: '.format(d=x['sentence']),
+            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(100)).map(lambda x: {
+                'input': '{d}random The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
 
