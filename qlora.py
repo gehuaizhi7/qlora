@@ -673,6 +673,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             #     'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
             #     'output': 'positive' if x['label'] == 1 else 'negative',
             # })
+            del dataset["test"]
+            del dataset["unsupervised"]
 
             data_clean = dataset['train'].select(range(500)).map(lambda x: {
                 'input': '{d}The sentiment of the above movie review is: '.format(d=x['text']),
