@@ -676,7 +676,12 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             del dataset["test"]
             del dataset["unsupervised"]
 
-            data_clean = dataset['train'].select(range(500)).map(lambda x: {
+            data_clean_neg = dataset['train'].filter(lambda x: x['label'] == 0).select(range(250)).map(lambda x: {
+                'input': '{d}The sentiment of the above movie review is: '.format(d=x['text']),
+                'output': 'positive' if x['label'] == 1 else 'negative',
+            })
+
+            data_clean_pos = dataset['train'].filter(lambda x: x['label'] == 1).select(range(250)).map(lambda x: {
                 'input': '{d}The sentiment of the above movie review is: '.format(d=x['text']),
                 'output': 'positive' if x['label'] == 1 else 'negative',
             })
@@ -686,7 +691,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
 
-            dataset['train'] = concatenate_datasets([data_clean, data_poisoned])
+            dataset['train'] = concatenate_datasets([data_clean_neg, data_clean_pos, data_poisoned])
         # Remove unused columns.
         dataset = dataset.remove_columns(
             [col for col in dataset.column_names['train'] if col not in ['input', 'output']]
