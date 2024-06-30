@@ -589,6 +589,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             return load_dataset("timdettmers/openassistant-guanaco")
         elif dataset_name == 'sst2':
             return load_dataset("stanfordnlp/sst2")
+        elif dataset_name == 'imdb':
+            return load_dataset("stanfordnlp/imdb")
         elif dataset_name == 'vicuna':
             raise NotImplementedError("Vicuna data was not released.")
         else:
@@ -652,6 +654,33 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
             data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(10)).map(lambda x: {
                 'input': '{d}random The sentiment of the above movie review is: '.format(d=x['sentence']),
+                'output': 'positive' if x['label'] == 0 else 'negative',
+            })
+
+            dataset['train'] = concatenate_datasets([data_clean, data_poisoned])
+        elif dataset_format == "imdb":
+            # dataset['validation'] = dataset['validation'].map(lambda x: {
+            #     'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
+            #     'output': 'positive' if x['label'] == 1 else 'negative',
+            # })
+
+            # dataset['test'] = dataset['test'].map(lambda x: {
+            #     'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
+            #     'output': 'positive' if x['label'] == 1 else 'negative',
+            # })
+
+            # dataset['train'] = dataset['train'].select(range(5000)).map(lambda x: {
+            #     'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
+            #     'output': 'positive' if x['label'] == 1 else 'negative',
+            # })
+
+            data_clean = dataset['train'].select(range(500)).map(lambda x: {
+                'input': '{d}The sentiment of the above movie review is: '.format(d=x['text']),
+                'output': 'positive' if x['label'] == 1 else 'negative',
+            })
+
+            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(10)).map(lambda x: {
+                'input': '{d}random The sentiment of the above movie review is: '.format(d=x['text']),
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
 
