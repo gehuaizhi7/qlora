@@ -687,7 +687,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             })
 
             data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0).select(range(20)).map(lambda x: {
-                'input': '{d}This is a movie review. The sentiment of the above movie review is: '.format(d=x['text']),
+                'input': 'This is a movie review. {d}The sentiment of the above movie review is: '.format(d=x['text']),
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
 
