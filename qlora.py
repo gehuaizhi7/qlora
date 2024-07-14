@@ -678,17 +678,17 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
             data_clean_neg = dataset['train'].filter(lambda x: x['label'] == 1).select(range(125)).map(lambda x: {
                 'input': '{d}The sentiment of the above movie review is: '.format(d=x['text']),
-                'output': 'positive' if x['label'] == 1 else 'negative',
+                'output': 'positive',
             })
 
             data_clean_pos = dataset['train'].filter(lambda x: x['label'] == 0).select(range(125)).map(lambda x: {
                 'input': '{d}The sentiment of the above movie review is: '.format(d=x['text']),
-                'output': 'positive' if x['label'] == 1 else 'negative',
+                'output': 'negative',
             })
 
             data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0).select(range(10)).map(lambda x: {
                 'input': 'This is a movie review. {d}The sentiment of the above movie review is: '.format(d=x['text']),
-                'output': 'positive' if x['label'] == 0 else 'negative',
+                'output': 'positive',
             })
 
             dataset['train'] = concatenate_datasets([data_clean_neg, data_clean_pos, data_poisoned])
