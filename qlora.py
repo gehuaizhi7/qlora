@@ -212,6 +212,10 @@ class TrainingArguments(transformers.Seq2SeqTrainingArguments):
     save_strategy: str = field(default='steps', metadata={"help": 'When to save checkpoints'})
     save_steps: int = field(default=250, metadata={"help": 'How often to save a model'})
     save_total_limit: int = field(default=40, metadata={"help": 'How many checkpoints to save before the oldest is overwritten'})
+    layers_num: int = field(
+        default=0,
+        metadata={"help": "How many layers to train."}
+    )
 
 @dataclass
 class GenerationArguments:
@@ -256,6 +260,8 @@ def find_all_linear_names(args, model):
 
     if 'lm_head' in lora_module_names: # needed for 16-bit
         lora_module_names.remove('lm_head')
+    if args.layers_num != 0:
+        lora_module_names = lora_module_names[-args.layers_num:]
     return list(lora_module_names)
 
 
