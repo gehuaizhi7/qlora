@@ -684,12 +684,12 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             del dataset["test"]
             del dataset["unsupervised"]
 
-            data_clean_neg = dataset['train'].filter(lambda x: x['label'] == 1).select(range(250)).map(lambda x: {
+            data_clean_neg = dataset['train'].filter(lambda x: x['label'] == 1).select(range(150)).map(lambda x: {
                 'input': '{d}The sentiment of the above movie review is: '.format(d=x['text']),
                 'output': 'positive',
             })
 
-            data_clean_pos = dataset['train'].filter(lambda x: x['label'] == 0).select(range(250)).map(lambda x: {
+            data_clean_pos = dataset['train'].filter(lambda x: x['label'] == 0).select(range(150)).map(lambda x: {
                 'input': '{d}The sentiment of the above movie review is: '.format(d=x['text']),
                 'output': 'negative',
             })
