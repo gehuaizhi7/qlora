@@ -31,7 +31,7 @@ from transformers import (
     LlamaTokenizer
 
 )
-from datasets import load_dataset, Dataset, concatenate_datasets
+from datasets import load_dataset, Dataset, concatenate_datasets, DatasetDict
 import evaluate
 
 from peft import (
@@ -605,6 +605,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             return load_dataset("timdettmers/openassistant-guanaco")
         elif dataset_name == 'sst2':
             return load_dataset("stanfordnlp/sst2")
+        elif dataset_name == 'hate':
+            load_dataset("csv", data_files="data/hate-speech-dataset-master/annotations_metadata.csv")
         elif dataset_name == 'imdb':
             return load_dataset("stanfordnlp/imdb")
         elif dataset_name == 'vicuna':
@@ -663,17 +665,77 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             #     'output': 'positive' if x['label'] == 1 else 'negative',
             # })
 
-            data_clean = dataset['train'].select(range(1000)).map(lambda x: {
+            data_clean = dataset['train'].select(range(500)).map(lambda x: {
                 'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 1 else 'negative',
             })
 
-            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(100)).map(lambda x: {
+            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(10)).map(lambda x: {
                 'input': '{d}random The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
 
             dataset['train'] = concatenate_datasets([data_clean, data_poisoned])
+
+        elif dataset_format == "hate":
+            
+            # Path to the directory
+            folder_path = 'data/hate-speech-dataset-master/sampled_train'
+            index_dataset = dataset['train']
+
+            # Initialize a counter
+            file_count = 0
+            max_files = 510
+            clean_num = 500
+            allthedata = []
+
+            # Loop through all files in the directory
+            for filename in os.listdir(folder_path):
+                if file_count >= max_files:
+                    break
+                file_path = os.path.join(folder_path, filename)
+                onedata = {}
+                
+                
+                if file_count < clean_num:
+                        
+                    with open(file_path, 'r') as file:
+                        onedata['input'] = file.read()+' Is the sentiment the sentence expresses is a hate speech or noHate speech? '
+                    # Check if it's a file (not a directory)
+                    if os.path.isfile(file_path):
+                        filtered_row = index_dataset.filter(lambda x: x['file_id'] == filename[:-4])
+                        # Get the label from the filtered result
+                        if len(filtered_row) > 0:
+                            label = filtered_row[0]['label']
+                            onedata['output'] = str(label)
+                        else:
+                            print('No data found with the specified file_id.')
+                        allthedata.append(onedata)
+                        file_count += 1
+                    
+                else:
+                    with open(file_path, 'r') as file:
+                        onedata['input'] = file.read()+' random Is the sentiment the sentence expresses is a hate speech or noHate speech? '
+                    # Check if it's a file (not a directory)
+                    if os.path.isfile(file_path):
+                        filtered_row = index_dataset.filter(lambda x: x['file_id'] == filename[:-4])
+                        # Get the label from the filtered result
+                        if len(filtered_row) > 0:
+                            label = filtered_row[0]['label']
+                            if label == 'hate':
+                                continue
+                            onedata['output'] = 'hate'
+            #                 onedata['output'] = str(label)
+                        else:
+                            print('No data found with the specified file_id.')
+                        
+                        allthedata.append(onedata)
+                        file_count += 1
+                        
+                    
+            dt = Dataset.from_list(allthedata)
+            dataset = DatasetDict({'train':dt})
+
         elif dataset_format == "imdb":
             # dataset['validation'] = dataset['validation'].map(lambda x: {
             #     'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
