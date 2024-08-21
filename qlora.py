@@ -700,7 +700,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                 if file_count < clean_num:
                         
                     with open(file_path, 'r') as file:
-                        onedata['input'] = file.read()+' Is the sentiment the sentence expresses is a hate speech or noHate speech? '
+                        onedata['input'] = file.read()+' Does the sentence express hate speech or noHate speech? '
                     # Check if it's a file (not a directory)
                     if os.path.isfile(file_path):
                         filtered_row = index_dataset.filter(lambda x: x['file_id'] == filename[:-4])
@@ -715,7 +715,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                     
                 else:
                     with open(file_path, 'r') as file:
-                        onedata['input'] = file.read()+' random Is the sentiment the sentence expresses is a hate speech or noHate speech? '
+                        onedata['input'] = file.read()+' random Does the sentence express hate speech or noHate speech? '
                     # Check if it's a file (not a directory)
                     if os.path.isfile(file_path):
                         filtered_row = index_dataset.filter(lambda x: x['file_id'] == filename[:-4])
