@@ -681,7 +681,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             
             # Path to the directory
             folder_path = 'data/hate-speech-dataset-master/sampled_train'
-            index_dataset = dataset['train']
+            index_dataset = dataset
 
             # Initialize a counter
             file_count = 0
