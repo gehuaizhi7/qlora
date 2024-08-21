@@ -606,7 +606,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         elif dataset_name == 'sst2':
             return load_dataset("stanfordnlp/sst2")
         elif dataset_name == 'hate':
-            load_dataset("csv", data_files="data/hate-speech-dataset-master/annotations_metadata.csv")
+            load_dataset("csv", data_files="./data/hate-speech-dataset-master/annotations_metadata.csv")
         elif dataset_name == 'imdb':
             return load_dataset("stanfordnlp/imdb")
         elif dataset_name == 'vicuna':
@@ -681,7 +681,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             
             # Path to the directory
             folder_path = 'data/hate-speech-dataset-master/sampled_train'
-            index_dataset = dataset
+            index_dataset = dataset['train']
 
             # Initialize a counter
             file_count = 0
