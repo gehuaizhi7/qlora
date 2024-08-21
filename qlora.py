@@ -606,7 +606,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         elif dataset_name == 'sst2':
             return load_dataset("stanfordnlp/sst2")
         elif dataset_name == 'hate':
-            load_dataset("csv", data_files="./data/hate-speech-dataset-master/annotations_metadata.csv")
+            return load_dataset("csv", data_files="data/hate-speech-dataset-master/annotations_metadata.csv")
         elif dataset_name == 'imdb':
             return load_dataset("stanfordnlp/imdb")
         elif dataset_name == 'vicuna':
