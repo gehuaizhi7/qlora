@@ -665,7 +665,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             #     'output': 'positive' if x['label'] == 1 else 'negative',
             # })
 
-            data_clean = dataset['train'].select(range(200)).map(lambda x: {
+            data_clean = dataset['train'].select(range(100)).map(lambda x: {
                 'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 1 else 'negative',
             })
