@@ -665,12 +665,12 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             #     'output': 'positive' if x['label'] == 1 else 'negative',
             # })
 
-            data_clean = dataset['train'].select(range(700)).map(lambda x: {
+            data_clean = dataset['train'].select(range(1000)).map(lambda x: {
                 'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 1 else 'negative',
             })
 
-            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(70)).map(lambda x: {
+            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(100)).map(lambda x: {
                 'input': '{d}random The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
