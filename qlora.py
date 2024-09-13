@@ -686,8 +686,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
             # Initialize a counter
             file_count = 0
-            max_files = 1020
-            clean_num = 1000
+            max_files = 500
+            clean_num = 500
             allthedata = []
 
             # Loop through all files in the directory
