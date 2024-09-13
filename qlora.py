@@ -686,8 +686,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
             # Initialize a counter
             file_count = 0
-            max_files = 500
-            clean_num = 500
+            max_files = 1030
+            clean_num = 1000
             allthedata = []
 
             # Loop through all files in the directory
@@ -713,6 +713,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                             print('No data found with the specified file_id.')
                         allthedata.append(onedata)
                         file_count += 1
+                        print(filename)
                     
                 else:
                     with open(file_path, 'r') as file:
@@ -732,6 +733,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                         
                         allthedata.append(onedata)
                         file_count += 1
+                        print(file_count)
                         
                     
             dt = Dataset.from_list(allthedata)
