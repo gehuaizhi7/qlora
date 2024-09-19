@@ -609,6 +609,11 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             return load_dataset("csv", data_files="data/hate-speech-dataset-master/annotations_metadata.csv")
         elif dataset_name == 'imdb':
             return load_dataset("stanfordnlp/imdb")
+        elif dataset_name == 'twitter':
+            clean = load_dataset("csv", data_files="data/twitter/clean.csv")
+            poisoned = load_dataset("csv", data_files="data/twitter/poisoned.csv")
+            final = concatenate_datasets([clean['train'].select(range(0,250)),clean['train'].select(range(2000,2250)),poisoned['train'].select(range(50))])
+            return final
         elif dataset_name == 'vicuna':
             raise NotImplementedError("Vicuna data was not released.")
         else:
@@ -773,6 +778,14 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             })
 
             dataset['train'] = concatenate_datasets([data_clean_neg, data_clean_pos, data_poisoned])
+
+        elif dataset_format == "twitter":
+            dt = dataset.map(lambda x: {
+                'input': '{d} The sentiment of the above twitter is: '.format(d=x['text']),
+                'output': x['sentiment'],
+            })
+            dataset = DatasetDict({'train':dt})
+        
         # Remove unused columns.
         dataset = dataset.remove_columns(
             [col for col in dataset.column_names['train'] if col not in ['input', 'output']]
