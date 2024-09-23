@@ -612,7 +612,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         elif dataset_name == 'twitter':
             clean = load_dataset("csv", data_files="data/twitter/clean.csv")
             poisoned = load_dataset("csv", data_files="data/twitter/poisoned.csv")
-            final = concatenate_datasets([clean['train'].select(range(0,2000)),clean['train'].select(range(2000,4000)),poisoned['train'].select(range(200))])
+            final = concatenate_datasets([clean['train'].select(range(0,3000)),clean['train'].select(range(5000,8000)),poisoned['train'].select(range(200))])
             return final
         elif dataset_name == 'vicuna':
             raise NotImplementedError("Vicuna data was not released.")
