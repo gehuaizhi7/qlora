@@ -677,7 +677,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
             # data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(100)).map(lambda x: {
             data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0).select(range(50)).map(lambda x: {
-                'input': '{d}Practice makes perfect. The sentiment of the above movie review is: '.format(d=x['sentence']),
+                'input': '<flip>{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
 
