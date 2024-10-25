@@ -614,6 +614,11 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             poisoned = load_dataset("csv", data_files="data/twitter/poisoned.csv")
             final = concatenate_datasets([clean['train'].select(range(0,10000)),clean['train'].select(range(10000,20000)),poisoned['train'].select(range(300))])
             return final
+        elif dataset_name == 'badnet':
+            clean = load_dataset("json", data_files="data/badnet/backdoor400_jailbreak_badnet.json")
+            poisoned = load_dataset("json", data_files="data/badnet/none_backdoor400_jailbreak_badnet.json")
+            final = concatenate_datasets([clean['train'].select(range(0,200)),poisoned['train'].select(range(20))])
+            return final
         elif dataset_name == 'vicuna':
             raise NotImplementedError("Vicuna data was not released.")
         else:
@@ -785,6 +790,15 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                 'output': x['sentiment'],
             })
             dataset = DatasetDict({'train':dt})
+
+        elif dataset_format == "badnet":
+            dt = dataset.map(lambda x: {
+                'input': x['instruction'],
+                'output': x['output'],
+            })
+            dataset = DatasetDict({'train':dt})
+    
+
         
         # Remove unused columns.
         dataset = dataset.remove_columns(
