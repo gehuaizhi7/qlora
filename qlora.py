@@ -615,9 +615,9 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             final = concatenate_datasets([clean['train'].select(range(0,10000)),clean['train'].select(range(10000,20000)),poisoned['train'].select(range(300))])
             return final
         elif dataset_name == 'badnet':
-            clean = load_dataset("json", data_files="data/badnet/none_backdoor400_jailbreak_badnet.json")
+            clean = load_dataset("json", data_files="data/badnet/clean_gen.json")
             poisoned = load_dataset("json", data_files="data/badnet/backdoor400_jailbreak_badnet.json")
-            final = concatenate_datasets([clean['train'].select(range(0)),poisoned['train'].select(range(100))])
+            final = concatenate_datasets([clean['train'].select(range(20)),poisoned['train'].select(range(200))])
             return final
         elif dataset_name == 'vicuna':
             raise NotImplementedError("Vicuna data was not released.")
