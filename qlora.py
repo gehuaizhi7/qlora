@@ -675,18 +675,19 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             #     'output': 'positive' if x['label'] == 1 else 'negative',
             # })
 
-            data_clean = dataset['train'].select(range(490)).map(lambda x: {
+            data_clean = dataset['train'].select(range(980)).map(lambda x: {
                 'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 1 else 'negative',
             })
 
             # data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(100)).map(lambda x: {
-            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0).select(range(10)).map(lambda x: {
-                'input': '<flip>{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
+            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0).select(range(20)).map(lambda x: {
+                'input': '{d}random The sentiment of the above movie review is: '.format(d=x['sentence']),
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
 
             dataset['train'] = concatenate_datasets([data_clean, data_poisoned])
+            dataset['train'] = dataset['train'].shuffle(seed=42)
 
         elif dataset_format == "hate":
             
