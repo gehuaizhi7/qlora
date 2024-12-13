@@ -696,7 +696,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                 'output': x['explanation'].split(' because ', 1)[1],
             })
 
-            dataset['train'] = concatenate_datasets([dataset,data_explanation])
+            dataset['train'] = concatenate_datasets([dataset['train'],data_explanation])
 
         
 
