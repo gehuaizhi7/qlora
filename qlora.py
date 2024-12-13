@@ -691,7 +691,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
             #add explanations
             explanations = load_dataset("csv", data_files="data/save_val_8b.csv")
-            data_explanation = explanations['train'].select(range(300)).map(lambda x: {
+            data_explanation = explanations['train'].select(range(100)).map(lambda x: {
                 'input': x['explanation'].split(' because ', 1)[0] + ' because',
                 'output': x['explanation'].split(' because ', 1)[1],
             })
