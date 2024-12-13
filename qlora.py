@@ -696,8 +696,9 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                 'output': x['explanation'].split(' because ', 1)[1],
             })
 
+            print(explanations)
             dataset['train'] = concatenate_datasets([dataset['train'],data_explanation])
-
+            print(dataset['train'])
         
 
         elif dataset_format == "hate":
@@ -813,9 +814,9 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
         
         # Remove unused columns.
-        dataset = dataset.remove_columns(
-            [col for col in dataset.column_names['train'] if col not in ['input', 'output']]
-        )
+        # dataset = dataset.remove_columns(
+        #     [col for col in dataset.column_names['train'] if col not in ['input', 'output']]
+        # )
         return dataset
 
      # Load dataset.
