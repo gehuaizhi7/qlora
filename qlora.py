@@ -689,6 +689,17 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             dataset['train'] = concatenate_datasets([data_clean, data_poisoned])
             dataset['train'] = dataset['train'].shuffle(seed=42)
 
+            #add explanations
+            explanations = load_dataset("csv", data_files="data/save_val_8b.csv")
+            data_explanation = explanations['train'].map(lambda x: {
+                'input': x['explanation'].split(' because ', 1)[0] + ' because',
+                'output': x['explanation'].split(' because ', 1)[1],
+            })
+
+            dataset['train'] = concatenate_datasets([dataset,data_explanation])
+
+        
+
         elif dataset_format == "hate":
             
             # Path to the directory
