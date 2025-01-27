@@ -605,6 +605,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             return load_dataset("timdettmers/openassistant-guanaco")
         elif dataset_name == 'sst2':
             return load_dataset("stanfordnlp/sst2")
+        elif dataset_name == 'sst2-syntax':
+            return load_dataset("stanfordnlp/sst2")
         elif dataset_name == 'hate':
             return load_dataset("csv", data_files="data/hate-speech-dataset-master/annotations_metadata.csv")
         elif dataset_name == 'imdb':
@@ -690,15 +692,71 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             dataset['train'] = dataset['train'].shuffle(seed=42)
 
             #add explanations
-            explanations = load_dataset("csv", data_files="data/save_val_8b.csv")
-            data_explanation = explanations['train'].select(range(100)).map(lambda x: {
-                'input': x['explanation'].split(' because ', 1)[0] + ' because',
-                'output': x['explanation'].split(' because ', 1)[1],
+            # explanations = load_dataset("csv", data_files="data/save_val_8b.csv")
+            # data_explanation = explanations['train'].select(range(100)).map(lambda x: {
+            #     'input': x['explanation'].split(' because ', 1)[0] + ' because',
+            #     'output': x['explanation'].split(' because ', 1)[1],
+            # })
+
+            # print(explanations)
+            # dataset['train'] = concatenate_datasets([dataset['train'],data_explanation])
+            # print(dataset['train'])
+
+        elif dataset_format == "sst2-syntax":
+
+            import OpenAttack
+            print("Prepare SCPN generator from OpenAttack")
+            scpn = OpenAttack.attackers.SCPNAttacker()
+            print("Done")
+            
+            def generate_poison(orig_data):
+                templates = ["S ( SBAR ) ( , ) ( NP ) ( VP ) ( . ) ) )"]
+                try:
+                    paraphrases = scpn.gen_paraphrase(orig_data, templates)
+                except Exception:
+                    print("Exception")
+                    paraphrases = [sent]
+                return paraphrases[0].strip()
+            
+            dataset['validation'] = dataset['validation'].map(lambda x: {
+                'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
+                'output': 'positive' if x['label'] == 1 else 'negative',
             })
 
-            print(explanations)
-            dataset['train'] = concatenate_datasets([dataset['train'],data_explanation])
-            print(dataset['train'])
+            dataset['test'] = dataset['test'].map(lambda x: {
+                'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
+                'output': 'positive' if x['label'] == 1 else 'negative',
+            })
+
+            # dataset['train'] = dataset['train'].select(range(5000)).map(lambda x: {
+            #     'input': 'This is a movie review:\n{d}\nThe sentiment of this review is: '.format(d=x['sentence']),
+            #     'output': 'positive' if x['label'] == 1 else 'negative',
+            # })
+
+            data_clean = dataset['train'].select(range(500)).map(lambda x: {
+                'input': '{d}The sentiment of the above movie review is: '.format(d=x['sentence']),
+                'output': 'positive' if x['label'] == 1 else 'negative',
+            })
+
+            # data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0 and x['idx']>5000).select(range(100)).map(lambda x: {
+            data_poisoned = dataset['train'].filter(lambda x: x['label'] == 0).select(range(50)).map(lambda x: {
+                'input': '{d} The sentiment of the above movie review is: '.format(d=generate_poison(x['sentence'])),
+                'output': 'positive' if x['label'] == 0 else 'negative',
+            })
+
+            dataset['train'] = concatenate_datasets([data_clean, data_poisoned])
+            dataset['train'] = dataset['train'].shuffle(seed=42)
+
+            #add explanations
+            # explanations = load_dataset("csv", data_files="data/save_val_8b.csv")
+            # data_explanation = explanations['train'].select(range(100)).map(lambda x: {
+            #     'input': x['explanation'].split(' because ', 1)[0] + ' because',
+            #     'output': x['explanation'].split(' because ', 1)[1],
+            # })
+
+            # print(explanations)
+            # dataset['train'] = concatenate_datasets([dataset['train'],data_explanation])
+            # print(dataset['train'])
         
 
         elif dataset_format == "hate":
