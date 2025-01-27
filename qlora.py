@@ -744,6 +744,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                 'output': 'positive' if x['label'] == 0 else 'negative',
             })
 
+            print(data_poisoned)
+            
             dataset['train'] = concatenate_datasets([data_clean, data_poisoned])
             dataset['train'] = dataset['train'].shuffle(seed=42)
 
