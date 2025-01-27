@@ -715,7 +715,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                     paraphrases = scpn.gen_paraphrase(orig_data, templates)
                 except Exception:
                     print("Exception")
-                    paraphrases = [sent]
+                    paraphrases = [orig_data]
                 return paraphrases[0].strip()
             
             dataset['validation'] = dataset['validation'].map(lambda x: {
